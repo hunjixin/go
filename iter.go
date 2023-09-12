@@ -24,6 +24,8 @@ const (
 	ArrayValue
 	// ObjectValue JSON element {}
 	ObjectValue
+
+	VariableValue
 )
 
 var hexDigits []byte
@@ -149,7 +151,16 @@ func (iter *Iterator) ResetBytes(input []byte) *Iterator {
 // WhatIsNext gets ValueType of relatively next json element
 func (iter *Iterator) WhatIsNext() ValueType {
 	valueType := valueTypes[iter.nextToken()]
+	nextValueType := InvalidValue
+	if iter.head != iter.tail {
+		nextValueType = valueTypes[iter.nextToken()]
+		iter.unreadByte()
+	}
 	iter.unreadByte()
+
+	if valueType == ObjectValue && nextValueType == ObjectValue {
+		return VariableValue
+	}
 	return valueType
 }
 
